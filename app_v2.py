@@ -8,7 +8,7 @@ from sklearn.preprocessing import normalize
 from sklearn.metrics import silhouette_score
 
 import umap
-from sklearn.cluster import DBSCAN
+import hdbscan
 import plotly.express as px
 
 from sklearn.metrics.pairwise import cosine_similarity
@@ -97,24 +97,133 @@ def reduce_dim(X):
 
     return umap_model.fit_transform(X_pca)
 
-
 # -----------------------
-# Параметры DBSCAN в sidebar
+# Параметры HDBSCAN в sidebar
 # -----------------------
-dbscan_eps = st.sidebar.slider("DBSCAN eps", 0.1, 5.0, 0.5, 0.1)
-dbscan_min_samples = st.sidebar.slider("DBSCAN min_samples", 1, 20, 5)
+cluster_min_size = st.sidebar.slider("HDBSCAN min_cluster_size", 5, 50, 10)
+cluster_eps = st.sidebar.slider("HDBSCAN cluster_selection_epsilon", 0.0, 1.0, 0.0, 0.01)
 
 # -----------------------
 # Функция кластеризации
 # -----------------------
 def cluster_data(X):
-    clusterer = DBSCAN(
-        eps=dbscan_eps,
-        min_samples=dbscan_min_samples,
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
         metric='euclidean'
     )
     return clusterer.fit_predict(X)
-
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
+# -----------------------
+# Функция кластеризации
+# -----------------------
+def cluster_data(X):
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=cluster_min_size,
+        cluster_selection_epsilon=cluster_eps,
+        metric='euclidean'
+    )
+    return clusterer.fit_predict(X)
+    
 def fuzzy_similarity(a, b):
     return max(
         fuzz.token_sort_ratio(a, b),
