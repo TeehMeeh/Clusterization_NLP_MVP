@@ -20,12 +20,12 @@ from rapidfuzz import fuzz
 # -----------------------
 st.title("📊 Кластеризация ВКР")
 
-uploaded_file = st.file_uploader("Загрузи Excel", type=["xlsx"])
-
-mode = st.selectbox(
-    "Режим эмбеддинга",
-    ["Только темы", "Только описания", "Комбинированный"]
-)
+#uploaded_file = st.file_uploader("Загрузи Excel", type=["xlsx"])
+uploaded_file = pd.read_excel("data/df_excel_clean.xlsx")
+#mode = st.selectbox(
+#    "Режим эмбеддинга",
+#    ["Только темы", "Только описания", "Комбинированный"]
+#)
 
 #alpha = st.slider("Вес темы (alpha)", 0.0, 1.0, 0.7)
 alpha = 0.8
@@ -210,7 +210,7 @@ if uploaded_file:
             st.warning("Недостаточно кластеров для метрики")
 
         # --- ТАБЛИЦА ---
-        st.dataframe(df)
+        st.dataframe(df["thesis_topic", ["label"])
 
         # --- СКАЧИВАНИЕ ---
         st.download_button(
