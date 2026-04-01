@@ -157,7 +157,7 @@ def find_similar_topics_streamlit(new_text, df, embeddings, top_n=20):
     return sorted_df.head(top_n)[cols]
 
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def cached_embeddings(df, mode, alpha):
     return get_embeddings(df, mode, alpha)
 # -----------------------
@@ -179,24 +179,33 @@ if df is not None and not df.empty:
     st.subheader("🚀 Кластеризация")
 
     if st.button("Запустить кластеризацию"):
-        st.session_state.run_cluster = True
-
-    if st.session_state.get("run_cluster"):
-
         with st.spinner("Снижаем размерность..."):
             X_2d = reduce_dim(embeddings)
 
         with st.spinner("Кластеризация..."):
             labels = cluster_data(X_2d)
 
-        df['cluster'] = labels
+        # 💾 СОХРАНЯЕМ
+        st.session_state.X_2d = X_2d
+        st.session_state.labels = labels
+        st.session_state.clustered_df = df.copy()
+        st.session_state.clustered_df["cluster"] = labels
 
-        # --- ГРАФИК В САМОМ ВЕРХУ ---
+    # -----------------------
+    # ✅ ОТОБРАЖЕНИЕ (БЕЗ ПЕРЕСЧЁТА)
+    # -----------------------
+    if "X_2d" in st.session_state:
+
+        X_2d = st.session_state.X_2d
+        labels = st.session_state.labels
+        df_clustered = st.session_state.clustered_df
+
+        # --- ГРАФИК ---
         fig = px.scatter(
             x=X_2d[:, 0],
             y=X_2d[:, 1],
             color=labels.astype(str),
-            hover_data=[df['thesis_topic']],
+            hover_data=[df_clustered['thesis_topic']],
             title="Кластеры"
         )
 
@@ -211,15 +220,16 @@ if df is not None and not df.empty:
             st.warning("Недостаточно кластеров для метрики")
 
         # --- ТАБЛИЦА ---
-        st.dataframe(df[["thesis_topic", "cluster"]])
+        st.dataframe(df_clustered[["thesis_topic", "cluster"]])
 
         # --- СКАЧИВАНИЕ ---
         st.download_button(
             "📥 Скачать результат",
-            df.to_csv(index=False),
+            df_clustered.to_csv(index=False),
             "clusters.csv",
             "text/csv"
         )
+        
 
     # -----------------------
     # 🔍 ПРОВЕРКА ДУБЛИКАТОВ (ПОСЛЕ ГРАФИКА!)
