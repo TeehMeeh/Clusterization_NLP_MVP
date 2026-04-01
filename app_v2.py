@@ -21,7 +21,7 @@ from rapidfuzz import fuzz
 st.title("📊 Кластеризация ВКР")
 
 #uploaded_file = st.file_uploader("Загрузи Excel", type=["xlsx"])
-uploaded_file = pd.read_excel("data/df_excel_clean.xlsx")
+uploaded_file = pd.read_excel("df_excel_clean.xlsx")
 #mode = st.selectbox(
 #    "Режим эмбеддинга",
 #    ["Только темы", "Только описания", "Комбинированный"]
