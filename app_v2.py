@@ -100,7 +100,7 @@ def cluster_data(X):
         min_cluster_size=7,
         min_samples=4,
         #cluster_selection_epsilon=cluster_eps,
-        metric='cosine'
+        metric='euclidean'
     )
     return clusterer.fit_predict(X)
 
