@@ -167,65 +167,30 @@ if uploaded_file:
     df = pd.read_excel(uploaded_file)
 
     # -----------------------
-    # СЧИТАЕМ ЭМБЕДДИНГИ (один раз)
+    # ЭМБЕДДИНГИ
     # -----------------------
     with st.spinner("Считаем эмбеддинги..."):
         embeddings = cached_embeddings(df, mode, alpha)
 
-
     # -----------------------
-    # 🔍 ПОИСК ДУБЛИКАТОВ (отдельно!)
+    # 🚀 КЛАСТЕРИЗАЦИЯ (ПЕРВАЯ!)
     # -----------------------
-    if st.session_state.get("run_duplicates") and new_topic.strip():
-        with st.spinner("Ищем похожие темы..."):
-            similar_df = find_similar_topics_streamlit(
-                new_topic,
-                df,
-                embeddings,
-                top_n
-            )
+    st.subheader("🚀 Кластеризация")
 
-        st.subheader("🔍 Проверка темы на дубликаты")
-
-        new_topic = st.text_area(
-        "Введите тему ВКР",
-        placeholder="Например: Анализ больших данных в медицине"
-        )
-
-top_n = st.slider("Сколько результатов показать", 5, 50, 20)
-
-if st.button("Проверить уникальность"):
-    st.session_state.run_duplicates = True
-
-    st.write("### 🔥 Похожие темы")
-    st.dataframe(similar_df)
-
-    st.download_button(
-        "📥 Скачать результаты",
-        similar_df.to_csv(index=False),
-        "similar_topics.csv",
-        "text/csv"
-    )
-
-
-    # -----------------------
-    # 🚀 КЛАСТЕРИЗАЦИЯ (отдельная кнопка)
-    # -----------------------
-    if st.button("🚀 Запустить кластеризацию"):
+    if st.button("Запустить кластеризацию"):
         st.session_state.run_cluster = True
-        if st.session_state.get("run_cluster"):
 
-            with st.spinner("Снижаем размерность..."):
-                X_2d = reduce_dim(embeddings)
+    if st.session_state.get("run_cluster"):
 
-            with st.spinner("Кластеризация..."):
-                labels = cluster_data(X_2d)
+        with st.spinner("Снижаем размерность..."):
+            X_2d = reduce_dim(embeddings)
 
-            df['cluster'] = labels
+        with st.spinner("Кластеризация..."):
+            labels = cluster_data(X_2d)
 
-        # -----------------------
-        # Визуализация
-        # -----------------------
+        df['cluster'] = labels
+
+        # --- ГРАФИК В САМОМ ВЕРХУ ---
         fig = px.scatter(
             x=X_2d[:, 0],
             y=X_2d[:, 1],
@@ -236,29 +201,57 @@ if st.button("Проверить уникальность"):
 
         st.plotly_chart(fig, use_container_width=True)
 
-        # -----------------------
-        # Метрики
-        # -----------------------
+        # --- МЕТРИКА ---
         mask = labels != -1
-
         if len(set(labels[mask])) > 1:
             score = silhouette_score(X_2d[mask], labels[mask])
             st.metric("Silhouette Score", round(score, 3))
         else:
             st.warning("Недостаточно кластеров для метрики")
 
-
-        # -----------------------
-        # Таблица
-        # -----------------------
+        # --- ТАБЛИЦА ---
         st.dataframe(df)
 
-        # -----------------------
-        # Скачать
-        # -----------------------
+        # --- СКАЧИВАНИЕ ---
         st.download_button(
             "📥 Скачать результат",
             df.to_csv(index=False),
             "clusters.csv",
             "text/csv"
         )
+
+    # -----------------------
+    # 🔍 ПРОВЕРКА ДУБЛИКАТОВ (ПОСЛЕ ГРАФИКА!)
+    # -----------------------
+    st.subheader("🔍 Проверка темы на дубликаты")
+
+    new_topic = st.text_area(
+        "Введите тему ВКР",
+        placeholder="Например: Анализ больших данных в медицине"
+    )
+
+    top_n = st.slider("Сколько результатов показать", 5, 50, 20)
+
+    if st.button("Проверить уникальность"):
+
+        if new_topic.strip():
+
+            with st.spinner("Ищем похожие темы..."):
+                similar_df = find_similar_topics_streamlit(
+                    new_topic,
+                    df,
+                    embeddings,
+                    top_n
+                )
+
+            st.write("### 🔥 Похожие темы")
+            st.dataframe(similar_df)
+
+            st.download_button(
+                "📥 Скачать результаты",
+                similar_df.to_csv(index=False),
+                "similar_topics.csv",
+                "text/csv"
+            )
+        else:
+            st.warning("Введите тему")
