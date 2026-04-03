@@ -296,7 +296,7 @@ if df is not None and not df.empty:
 
         if st.session_state.filter_mode == "supervisor":
             df_display = df_display[
-                df_display["supervisor"].str.contains(
+                df_display["supervisor_code"].str.contains(
                 selected_supervisor,
                 case=False,
                 na=False
