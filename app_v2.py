@@ -87,7 +87,7 @@ def reduce_dim(X):
 
     return umap_model.fit_transform(X_pca)
 
-def add_cluster_boundaries(fig, X, labels):
+def add_cluster_boundaries(fig, X, labels, color_map):
     unique_labels = set(labels)
 
     X_2d = X[:, :2]
@@ -95,6 +95,13 @@ def add_cluster_boundaries(fig, X, labels):
     for label in unique_labels:
         if label == -1:
             continue
+
+        label_str = str(label)
+
+        if label_str not in color_map:
+            continue
+
+        color = color_map[label_str]
 
         points = X_2d[labels == label]
 
@@ -105,8 +112,11 @@ def add_cluster_boundaries(fig, X, labels):
             hull = ConvexHull(points)
             hull_points = points[hull.vertices]
 
-            # 🔥 замыкаем контур
+            # замыкаем контур
             hull_points = np.append(hull_points, [hull_points[0]], axis=0)
+
+            # 🔥 делаем прозрачный цвет
+            fillcolor = color.replace("rgb", "rgba").replace(")", ",0.08)")
 
             fig.add_scatter(
                 x=hull_points[:, 0],
@@ -114,10 +124,10 @@ def add_cluster_boundaries(fig, X, labels):
                 mode='lines',
                 line=dict(
                     width=2,
-                    color='rgba(0,0,0,0.4)'  # можно поменять
+                    color=color
                 ),
-                fill='toself',  # 🔥 ВКЛЮЧАЕТ ЗАЛИВКУ
-                fillcolor='rgba(0,0,0,0.05)',  # 🔥 слабая прозрачность
+                fill='toself',
+                fillcolor=fillcolor,
                 showlegend=False
             )
 
@@ -125,6 +135,18 @@ def add_cluster_boundaries(fig, X, labels):
             continue
 
     return fig
+
+
+def get_cluster_colors(fig):
+    color_map = {}
+
+    for trace in fig.data:
+        cluster_name = trace.name  # строка label
+        color = trace.marker.color
+
+        color_map[cluster_name] = color
+
+    return color_map
 
 # -----------------------
 # Параметры HDBSCAN в sidebar
@@ -247,9 +269,11 @@ if df is not None and not df.empty:
             y=X_2d[:, 1],
             color=labels.astype(str),
             hover_data=[df_clustered['thesis_topic']],
-            title="Кластеры"
+            title="Кластеры",
+            opacity=0.9
         )
-        fig = add_cluster_boundaries(fig, X_2d, labels)
+        color_map = get_cluster_colors(fig)
+        fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
         st.plotly_chart(fig, use_container_width=True)
 
         # --- МЕТРИКА ---
