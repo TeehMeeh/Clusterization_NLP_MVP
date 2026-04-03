@@ -323,9 +323,9 @@ if df is not None and not df.empty:
         fig_full = px.scatter(
             x=X_2d[:, 0],
             y=X_2d[:, 1],
-            color=labels,
-            color_continuous_scale="Turbo"
+            color=labels.astype(str)  # 🔥 ВАЖНО: делаем категории
         )
+
         color_map = get_cluster_colors(fig_full)
 
         # --- 2. ФОН (все точки серые) ---
