@@ -264,6 +264,21 @@ if df is not None and not df.empty:
         labels = st.session_state.labels
         df_clustered = st.session_state.clustered_df
 
+        # -----------------------
+        # 📊 ФИЛЬТРАЦИЯ ДАННЫХ
+        # -----------------------
+
+        df_display = df_clustered.copy()
+
+        if st.session_state.filter_mode == "supervisor":
+            df_display = df_display[
+                df_display["supervisor"].str.contains(
+                selected_supervisor,
+                case=False,
+                na=False
+                )
+            ]
+
         # --- ГРАФИК ---
         # индексы отфильтрованных данных
         indices = df_display.index
@@ -272,10 +287,10 @@ if df is not None and not df.empty:
         labels_display = labels[indices]
         
         fig = px.scatter(
-            x=X_2d[:, 0],
-            y=X_2d[:, 1],
+            x=X_display[:, 0],
+            y=X_display[:, 1],
             color=labels.astype(str),
-            hover_data=[df_clustered['thesis_topic']],
+            hover_data=[df_display['thesis_topic']],
             title="Кластеры",
             opacity=0.9
         )
@@ -306,22 +321,6 @@ if df is not None and not df.empty:
         # если введён преподаватель → переключаем режим
         if selected_supervisor.strip():
             st.session_state.filter_mode = "supervisor"
-
-
-        # -----------------------
-        # 📊 ФИЛЬТРАЦИЯ ДАННЫХ
-        # -----------------------
-
-        df_display = df_clustered.copy()
-
-        if st.session_state.filter_mode == "supervisor":
-            df_display = df_display[
-                df_display["supervisor"].str.contains(
-                selected_supervisor,
-                case=False,
-                na=False
-                )
-            ]
 
 
         # --- МЕТРИКА ---
