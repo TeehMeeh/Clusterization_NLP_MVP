@@ -275,6 +275,10 @@ if df is not None and not df.empty:
 
         with col2:
             selected_supervisor = st.text_input("Фильтр по преподавателю")
+            clusters = sorted(df_clustered["cluster"].unique())
+            cluster_options = ["Все"] + [str(c) for c in clusters if c != -1]
+
+selected_cluster = st.selectbox("Фильтр по кластеру", cluster_options)
 
         # по умолчанию показываем всех
         if "filter_mode" not in st.session_state:
@@ -293,16 +297,20 @@ if df is not None and not df.empty:
         # -----------------------
 
         df_display = df_clustered.copy()
+
         # 🔥 фильтр по кластеру
         if selected_cluster != "Все":
-            df_display = df_display[df_display["cluster"] == selected_cluster]
+            df_display = df_display[
+                df_display["cluster"] == int(selected_cluster)
+            ]
 
+        # 🔥 фильтр по преподавателю
         if st.session_state.filter_mode == "supervisor":
             df_display = df_display[
                 df_display["supervisor_code"].str.contains(
-                selected_supervisor,
-                case=False,
-                na=False
+                    selected_supervisor,
+                    case=False,
+                    na=False
                 )
             ]
 
@@ -334,22 +342,29 @@ if df is not None and not df.empty:
         )
 
         # --- 3. ВЫДЕЛЕННЫЕ ТОЧКИ ---
+        point_colors = [
+            color_map.get(str(label), "gray")
+            for label in labels_display
+        ]
+
         fig.add_scatter(
             x=X_display[:, 0],
             y=X_display[:, 1],
             mode='markers',
             marker=dict(
+                color=point_colors,
                 size=9,
-                color=labels_display,
-                colorscale="Turbo",
-                showscale=False
+                line=dict(width=0.5, color='black')
             ),
-            text=df_display['thesis_topic'],
-            customdata=np.stack([labels_display], axis=-1),
-            hovertemplate=
-                "<b>%{text}</b><br>" +
-                "Кластер: %{customdata[0]}<extra></extra>",
-            name="Темы"
+            customdata=np.stack([
+                df_display['thesis_topic'],
+                labels_display
+            ], axis=-1),
+            hovertemplate=(
+                "<b>Кластер:</b> %{customdata[1]}<br>" +
+                "<b>Тема:</b> %{customdata[0]}<extra></extra>"
+            ),
+            name="Отфильтрованные"
         )
 
         # --- 4. ГРАНИЦЫ (по ВСЕМ данным) ---
