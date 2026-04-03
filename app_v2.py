@@ -293,6 +293,9 @@ if df is not None and not df.empty:
         # -----------------------
 
         df_display = df_clustered.copy()
+        # 🔥 фильтр по кластеру
+        if selected_cluster != "Все":
+            df_display = df_display[df_display["cluster"] == selected_cluster]
 
         if st.session_state.filter_mode == "supervisor":
             df_display = df_display[
@@ -304,52 +307,59 @@ if df is not None and not df.empty:
             ]
 
         # --- ГРАФИК ---
-        # индексы отфильтрованных данных
         indices = df_display.index
-
         X_display = X_2d[indices]
         labels_display = labels[indices]
-        
-        # 1. Цвета кластеров (по всем данным)
+
+        # --- 1. Цвета кластеров (правильные!) ---
         fig_full = px.scatter(
             x=X_2d[:, 0],
             y=X_2d[:, 1],
-            color=labels.astype(str)
+            color=labels,
+            color_continuous_scale="Turbo"
         )
         color_map = get_cluster_colors(fig_full)
 
-        # 2. ФОН (все точки серые)
+        # --- 2. ФОН (все точки серые) ---
         fig = px.scatter(
             x=X_2d[:, 0],
             y=X_2d[:, 1],
-            opacity=0.15
+            opacity=0.08
         )
 
         fig.update_traces(
-            marker=dict(color="lightgray"),
+            marker=dict(color="lightgray", size=5),
             showlegend=False,
-            hoverinfo="skip"  # чтобы не мешался hover
+            hoverinfo="skip"
         )
 
-        # 3. ДОБАВЛЯЕМ отфильтрованные точки (цветные)
+        # --- 3. ВЫДЕЛЕННЫЕ ТОЧКИ ---
         fig.add_scatter(
             x=X_display[:, 0],
             y=X_display[:, 1],
             mode='markers',
             marker=dict(
-                color=labels_display.astype(str),
-                size=8
+                size=9,
+                color=labels_display,
+                colorscale="Turbo",
+                showscale=False
             ),
             text=df_display['thesis_topic'],
-            hoverinfo='text',
-            name="Отфильтрованные"
+            customdata=np.stack([labels_display], axis=-1),
+            hovertemplate=
+                "<b>%{text}</b><br>" +
+                "Кластер: %{customdata[0]}<extra></extra>",
+            name="Темы"
         )
 
-        # 4. ГРАНИЦЫ (по ВСЕМ данным!)
+        # --- 4. ГРАНИЦЫ (по ВСЕМ данным) ---
         fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
 
-        # 5. Заголовок
-        fig.update_layout(title="Кластеры")
+        # --- 5. настройки ---
+        fig.update_layout(
+            title="Кластеры",
+            hovermode="closest"
+        )
 
         st.plotly_chart(fig, use_container_width=True)
 
