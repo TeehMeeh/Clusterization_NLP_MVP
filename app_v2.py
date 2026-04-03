@@ -278,7 +278,7 @@ if df is not None and not df.empty:
             clusters = sorted(df_clustered["cluster"].unique())
             cluster_options = ["Все"] + [str(c) for c in clusters if c != -1]
 
-selected_cluster = st.selectbox("Фильтр по кластеру", cluster_options)
+        selected_cluster = st.selectbox("Фильтр по кластеру", cluster_options)
 
         # по умолчанию показываем всех
         if "filter_mode" not in st.session_state:
