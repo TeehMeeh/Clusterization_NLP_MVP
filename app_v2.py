@@ -310,16 +310,47 @@ if df is not None and not df.empty:
         X_display = X_2d[indices]
         labels_display = labels[indices]
         
+        # 1. Цвета кластеров (по всем данным)
+        fig_full = px.scatter(
+            x=X_2d[:, 0],
+            y=X_2d[:, 1],
+            color=labels.astype(str)
+        )
+        color_map = get_cluster_colors(fig_full)
+
+        # 2. ФОН (все точки серые)
         fig = px.scatter(
+            x=X_2d[:, 0],
+            y=X_2d[:, 1],
+            opacity=0.15
+        )
+
+        fig.update_traces(
+            marker=dict(color="lightgray"),
+            showlegend=False,
+            hoverinfo="skip"  # чтобы не мешался hover
+        )
+
+        # 3. ДОБАВЛЯЕМ отфильтрованные точки (цветные)
+        fig.add_scatter(
             x=X_display[:, 0],
             y=X_display[:, 1],
-            color=labels_display.astype(str),
-            hover_data=[df_display['thesis_topic']],
-            title="Кластеры",
-            opacity=0.9
+            mode='markers',
+            marker=dict(
+                color=labels_display.astype(str),
+                size=8
+            ),
+            text=df_display['thesis_topic'],
+            hoverinfo='text',
+            name="Отфильтрованные"
         )
-        color_map = get_cluster_colors(fig)
-        fig = add_cluster_boundaries(fig, X_display, labels_display, color_map)
+
+        # 4. ГРАНИЦЫ (по ВСЕМ данным!)
+        fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
+
+        # 5. Заголовок
+        fig.update_layout(title="Кластеры")
+
         st.plotly_chart(fig, use_container_width=True)
 
         # --- МЕТРИКА ---
