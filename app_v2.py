@@ -367,11 +367,29 @@ if df is not None and not df.empty:
                     size=9,
                     line=dict(width=0.5, color='black')
                 ),
-                name=f"Кластер {cluster}",  # 🔥 нормальная легенда
+                name=f"Кластер {cluster}",
+
+                # 🔥 ВАЖНО: добавляем group
+                legendgroup=f"cluster_{cluster}",
+
+                # 🔥 ВОТ ЭТО ДАЁТ ПОДСВЕТКУ
+                selected=dict(
+                marker=dict(
+                    size=12,
+                    opacity=1
+                    )
+                ),
+                unselected=dict(
+                    marker=dict(
+                        opacity=0.15
+                    )
+                ),
+
                 customdata=np.stack([
                     df_cluster_part['thesis_topic'],
                     [cluster] * len(df_cluster_part)
                 ], axis=-1),
+
                 hovertemplate=(
                     "<b>Кластер:</b> %{customdata[1]}<br>" +
                     "<b>Тема:</b> %{customdata[0]}<extra></extra>"
