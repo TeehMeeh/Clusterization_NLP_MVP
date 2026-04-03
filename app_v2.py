@@ -129,7 +129,9 @@ def add_cluster_boundaries(fig, X, labels, color_map):
                 fill='toself',
                 fillcolor=fillcolor,
                 showlegend=False,
-                opacity=0.35
+                opacity=0.35,
+                hoverinfo="skip",
+                hovertemplate=None
             )
 
         except:
@@ -348,6 +350,8 @@ if df is not None and not df.empty:
             for label in labels_display
         ]
 
+        fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
+
         fig.add_scatter(
             x=X_display[:, 0],
             y=X_display[:, 1],
@@ -363,15 +367,14 @@ if df is not None and not df.empty:
             ], axis=-1),
             hovertemplate=(
                 "<b>Кластер:</b> %{customdata[1]}<br>" +
-                "<b>Тема:</b> %{customdata[0]}<extra></extra>" +
-                "<extra></extra>"
+                "<b>Тема:</b> %{customdata[0]}<extra></extra>"
             ),
-            hoverinfo="skip",
+            #hoverinfo="skip",
             name="Кластеры"
         )
 
         # --- 4. ГРАНИЦЫ (по ВСЕМ данным) ---
-        fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
+        #fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
 
         # --- 5. настройки ---
         fig.update_layout(
