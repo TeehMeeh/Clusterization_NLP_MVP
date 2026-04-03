@@ -345,33 +345,38 @@ if df is not None and not df.empty:
         )
 
         # --- 3. ВЫДЕЛЕННЫЕ ТОЧКИ ---
-        point_colors = [
-            color_map.get(str(label), "gray")
-            for label in labels_display
-        ]
-
         fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
 
-        fig.add_scatter(
-            x=X_display[:, 0],
-            y=X_display[:, 1],
-            mode='markers',
-            marker=dict(
-                color=point_colors,
-                size=9,
-                line=dict(width=0.5, color='black')
-            ),
-            customdata=np.stack([
-                df_display['thesis_topic'],
-                labels_display
-            ], axis=-1),
-            hovertemplate=(
-                "<b>Кластер:</b> %{customdata[1]}<br>" +
-                "<b>Тема:</b> %{customdata[0]}<extra></extra>"
-            ),
-            #hoverinfo="skip",
-            name="Кластеры"
-        )
+        unique_clusters = sorted(set(labels_display))
+
+        for cluster in unique_clusters:
+
+            cluster_mask = labels_display == cluster
+
+            X_cluster = X_display[cluster_mask]
+            df_cluster_part = df_display.iloc[cluster_mask]
+
+            color = color_map.get(str(cluster), "gray")
+
+            fig.add_scatter(
+                x=X_cluster[:, 0],
+                y=X_cluster[:, 1],
+                mode='markers',
+                marker=dict(
+                    color=color,
+                    size=9,
+                    line=dict(width=0.5, color='black')
+                ),
+                name=f"Кластер {cluster}",  # 🔥 нормальная легенда
+                customdata=np.stack([
+                    df_cluster_part['thesis_topic'],
+                    [cluster] * len(df_cluster_part)
+                ], axis=-1),
+                hovertemplate=(
+                    "<b>Кластер:</b> %{customdata[1]}<br>" +
+                    "<b>Тема:</b> %{customdata[0]}<extra></extra>"
+                )
+            )
 
         # --- 4. ГРАНИЦЫ (по ВСЕМ данным) ---
         #fig = add_cluster_boundaries(fig, X_2d, labels, color_map)
