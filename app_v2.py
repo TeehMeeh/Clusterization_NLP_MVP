@@ -63,23 +63,26 @@ def get_embeddings(df, mode="Только темы", alpha=0.8):
     return X
 
 
-def reduce_dim(X):
+def reduce_for_clustering(X):
+    pca = PCA(n_components=50, random_state=42)
+    return pca.fit_transform(X)
+
+
+def reduce_for_plot(X):
     pca = PCA(n_components=50, random_state=42)
     X_pca = pca.fit_transform(X)
 
-    umap_model = umap.UMAP(
+    return umap.UMAP(
         n_neighbors=15,
-        n_components=8,
-        min_dist=0.01,
+        n_components=2,  
+        min_dist=0.0,     
         metric='cosine',
         random_state=42
-    )
-
-    return umap_model.fit_transform(X_pca)
+    ).fit_transform(X_pca)
 
 def add_cluster_boundaries(fig, X, labels, color_map):
     unique_labels = set(labels)
-    X_2d = X[:, :2]
+    X_2d = X
 
     for label in unique_labels:
         if label == -1:
@@ -235,11 +238,14 @@ if df is not None and not df.empty:
     st.subheader("Кластеризация")
 
     if st.button("Запустить кластеризацию"):
-        with st.spinner("Снижаем размерность..."):
-            X_2d = reduce_dim(embeddings)
+        with st.spinner("Подготовка данных..."):
+            X_cluster = reduce_for_clustering(embeddings)
 
         with st.spinner("Кластеризация..."):
-            labels = cluster_data(X_2d)
+            labels = cluster_data(X_cluster)
+
+        with st.spinner("Строим 2D-проекцию..."):
+            X_2d = reduce_for_plot(embeddings)
 
         # СОХРАНЯЕМ
         st.session_state.X_2d = X_2d
@@ -436,7 +442,7 @@ if df is not None and not df.empty:
         # --- МЕТРИКА ---
         mask = labels != -1
         if len(set(labels[mask])) > 1:
-            score = silhouette_score(X_2d[mask], labels[mask])
+            score = silhouette_score(X_cluster[mask], labels[mask])
             st.metric("Silhouette Score", round(score, 3))
         else:
             st.warning("Недостаточно кластеров для метрики")
