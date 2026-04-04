@@ -454,11 +454,11 @@ if df is not None and not df.empty:
                 ),
                 "cluster": st.column_config.NumberColumn(
                     "Кластер",
-                    width="small"
+                    width=70 
                 ),
                 "supervisor_code": st.column_config.TextColumn(
                     "Препод",
-                    width="small"
+                    width=80
                 )
             }
         )
