@@ -446,7 +446,21 @@ if df is not None and not df.empty:
         st.data_editor(
             df_display[["thesis_topic", "cluster", "supervisor_code"]],
             use_container_width=True,
-            disabled=True
+            disabled=True,
+            column_config={
+                "thesis_topic": st.column_config.TextColumn(
+                    "Тема ВКР",
+                    width="large"
+                ),
+                "cluster": st.column_config.NumberColumn(
+                    "Кластер",
+                    width="small"
+                ),
+                "supervisor_code": st.column_config.TextColumn(
+                    "Препод",
+                    width="small"
+                )
+            }
         )
 
         # --- СКАЧИВАНИЕ ---
@@ -483,7 +497,7 @@ if df is not None and not df.empty:
                 )
 
             st.write("### 🔥 Похожие темы")
-            st.dataframe(similar_df)
+            st.dataframe(similar_df, use_container_width=True)
 
             #st.download_button(
             #    "📥 Скачать результаты",
