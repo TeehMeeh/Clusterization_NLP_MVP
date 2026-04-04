@@ -289,13 +289,18 @@ if df is not None and not df.empty:
         col1, col2 = st.columns([1, 2])
 
         with col1:
-            show_all = st.button("Показать всех")
+            if st.button("Показать всех"):
+                st.session_state.selected_supervisors = []
 
         with col2:
+            if "selected_supervisors" not in st.session_state:
+                st.session_state.selected_supervisors = []
+
             selected_supervisor = st.multiselect(
                 "Фильтр по преподавателю",
                 options=supervisors,
-                #max_selections=1
+                default=st.session_state.selected_supervisors,
+                key="selected_supervisors"
             )
 
             clusters = sorted(df_clustered["cluster"].unique())
