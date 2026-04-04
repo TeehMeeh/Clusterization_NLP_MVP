@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -63,26 +62,23 @@ def get_embeddings(df, mode="Только темы", alpha=0.8):
     return X
 
 
-def reduce_for_clustering(X):
-    pca = PCA(n_components=50, random_state=42)
-    return pca.fit_transform(X)
-
-
-def reduce_for_plot(X):
+def reduce_dim(X):
     pca = PCA(n_components=50, random_state=42)
     X_pca = pca.fit_transform(X)
 
-    return umap.UMAP(
-        n_neighbors=5,
-        n_components=2,  
-        min_dist=0.0,     
+    umap_model = umap.UMAP(
+        n_neighbors=15,
+        n_components=8,
+        min_dist=0.01,
         metric='cosine',
         random_state=42
-    ).fit_transform(X_pca)
+    )
+
+    return umap_model.fit_transform(X_pca)
 
 def add_cluster_boundaries(fig, X, labels, color_map):
     unique_labels = set(labels)
-    X_2d = X
+    X_2d = X[:, :2]
 
     for label in unique_labels:
         if label == -1:
@@ -156,7 +152,7 @@ def cluster_data(X):
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=7,
         min_samples=4,
-        metric='euclidean'
+        metric='euclidian'
     )
     return clusterer.fit_predict(X)
 
@@ -238,18 +234,14 @@ if df is not None and not df.empty:
     st.subheader("Кластеризация")
 
     if st.button("Запустить кластеризацию"):
-        with st.spinner("Подготовка данных..."):
-            X_cluster = reduce_for_clustering(embeddings)
+        with st.spinner("Снижаем размерность..."):
+            X_2d = reduce_dim(embeddings)
 
         with st.spinner("Кластеризация..."):
-            labels = cluster_data(X_cluster)
-
-        with st.spinner("Строим 2D-проекцию..."):
-            X_2d = reduce_for_plot(embeddings)
+            labels = cluster_data(X_2d)
 
         # СОХРАНЯЕМ
         st.session_state.X_2d = X_2d
-        st.session_state.X_cluster = X_cluster
         st.session_state.labels = labels
         st.session_state.clustered_df = df.copy()
         st.session_state.clustered_df["cluster"] = labels
@@ -260,7 +252,6 @@ if df is not None and not df.empty:
     if "X_2d" in st.session_state:
 
         X_2d = st.session_state.X_2d
-        X_cluster = st.session_state.X_cluster
         labels = st.session_state.labels
         df_clustered = st.session_state.clustered_df
 
@@ -348,7 +339,7 @@ if df is not None and not df.empty:
                 df_display["year"].astype(str).isin(selected_years)
             ]
 
-        
+
 
         # --- ГРАФИК ---
         indices = df_display.index
@@ -444,7 +435,7 @@ if df is not None and not df.empty:
         # --- МЕТРИКА ---
         mask = labels != -1
         if len(set(labels[mask])) > 1:
-            score = silhouette_score(X_cluster[mask], labels[mask])
+            score = silhouette_score(X_2d[mask], labels[mask])
             st.metric("Silhouette Score", round(score, 3))
         else:
             st.warning("Недостаточно кластеров для метрики")
@@ -469,7 +460,7 @@ if df is not None and not df.empty:
                 )
             }
         )
-        
+
 
     # -----------------------
     #  ПРОВЕРКА ДУБЛИКАТОВ 
