@@ -73,7 +73,7 @@ def reduce_for_plot(X):
     X_pca = pca.fit_transform(X)
 
     return umap.UMAP(
-        n_neighbors=15,
+        n_neighbors=5,
         n_components=2,  
         min_dist=0.0,     
         metric='cosine',
@@ -249,6 +249,7 @@ if df is not None and not df.empty:
 
         # СОХРАНЯЕМ
         st.session_state.X_2d = X_2d
+        st.session_state.X_cluster = X_cluster
         st.session_state.labels = labels
         st.session_state.clustered_df = df.copy()
         st.session_state.clustered_df["cluster"] = labels
@@ -259,6 +260,7 @@ if df is not None and not df.empty:
     if "X_2d" in st.session_state:
 
         X_2d = st.session_state.X_2d
+        X_cluster = st.session_state.X_cluster
         labels = st.session_state.labels
         df_clustered = st.session_state.clustered_df
 
