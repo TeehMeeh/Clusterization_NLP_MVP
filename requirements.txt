@@ -12,3 +12,4 @@ transformers>=4.35.0
 torch>=2.1.0
 huggingface_hub>=0.17.3
 hdbscan==0.8.42
+rich==13.7.1
