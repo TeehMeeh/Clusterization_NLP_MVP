@@ -24,51 +24,12 @@ st.set_page_config(layout="wide")
 
 st.title("Кластеризация ВКР")
 
-st.markdown("""
-<style>
-/* --- ВТОРАЯ колонка (cluster) --- */
-[data-testid="stDataFrame"] th:nth-child(2),
-[data-testid="stDataFrame"] td:nth-child(2) {
-    width: 60px !important;
-    min-width: 60px !important;
-    max-width: 60px !important;
-    text-align: center;
-}
 
-/* --- ТРЕТЬЯ колонка (supervisor) --- */
-[data-testid="stDataFrame"] th:nth-child(3),
-[data-testid="stDataFrame"] td:nth-child(3) {
-    width: 120px !important;
-    min-width: 120px !important;
-    max-width: 120px !important;
-}
-
-/* --- ПЕРВАЯ колонка (тема) --- */
-[data-testid="stDataFrame"] th:nth-child(1),
-[data-testid="stDataFrame"] td:nth-child(1) {
-    width: 100% !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-#uploaded_file = st.file_uploader("Загрузи Excel", type=["xlsx"])
 df = pd.read_excel("df_excel_clean.xlsx")
-#mode = st.selectbox(
-#    "Режим эмбеддинга",
-#    ["Только темы", "Только описания", "Комбинированный"]
-#)
+
 mode = "Только темы"
 
-#alpha = st.slider("Вес темы (alpha)", 0.0, 1.0, 0.7)
 alpha = 0.8
-
-#st.sidebar.header("Параметры модели")
-
-#pca_dim = st.sidebar.slider("PCA компоненты", 10, 200, 50)
-#umap_neighbors = st.sidebar.slider("UMAP n_neighbors", 5, 50, 15)
-#umap_min_dist = st.sidebar.slider("UMAP min_dist", 0.0, 0.5, 0.1)
-#cluster_size = st.sidebar.slider("min_cluster_size", 5, 50, 10)
-
 # -----------------------
 # Модель
 # -----------------------
@@ -185,12 +146,6 @@ def get_cluster_colors(fig):
         color_map[cluster_name] = color
 
     return color_map
-
-# -----------------------
-# Параметры HDBSCAN в sidebar
-# -----------------------
-#cluster_min_size = st.sidebar.slider("HDBSCAN min_cluster_size", 5, 50, 10)
-#cluster_eps = st.sidebar.slider("HDBSCAN cluster_selection_epsilon", 0.0, 1.0, 0.0, 0.01)
 
 # -----------------------
 # Функция кластеризации
