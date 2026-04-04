@@ -337,8 +337,6 @@ if df is not None and not df.empty:
             df_display = df_display[
                 df_display["supervisor_code"].isin(selected_supervisor)
             ]
-        if show_all:
-            selected_supervisor = []
 
         # --- ГРАФИК ---
         indices = df_display.index
