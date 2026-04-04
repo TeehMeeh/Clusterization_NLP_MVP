@@ -26,8 +26,8 @@ st.title("Кластеризация ВКР")
 
 st.markdown("""
 <style>
-[data-testid="stDataFrame"] * {
-    white-space: normal !important;
+[data-testid="stDataFrame"] td {
+    padding: 4px 6px !important;
 }
 </style>
 """, unsafe_allow_html=True)
