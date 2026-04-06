@@ -8,7 +8,7 @@ from sklearn.preprocessing import normalize
 from sklearn.metrics import silhouette_score
 
 import umap
-import hdbscan
+from sklearn.cluster import HDBSCAN
 import plotly.express as px
 from scipy.spatial import ConvexHull
 
@@ -149,10 +149,10 @@ def get_cluster_colors(fig):
 # Функция кластеризации
 # -----------------------
 def cluster_data(X):
-    clusterer = hdbscan.HDBSCAN(
+    clusterer = HDBSCAN(
         min_cluster_size=7,
         min_samples=4,
-        metric='euclidean'
+        metric='cosine'
     )
     return clusterer.fit_predict(X)
 
