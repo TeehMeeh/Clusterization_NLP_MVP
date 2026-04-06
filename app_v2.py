@@ -469,7 +469,7 @@ if df is not None and not df.empty:
 
     new_topic = st.text_area(
         "Введите тему ВКР",
-        placeholder="Например: Анализ больших данных в медицине"
+        placeholder="Например: Переработка отходов..."
     )
 
     top_n = st.slider("Сколько результатов показать", 5, 50, 20)
