@@ -45,8 +45,8 @@ model = load_model()
 def load_ruT5():
     return pipeline(
         "text2text-generation",
-        model="cointegrated/rut5-small",
-        tokenizer="cointegrated/rut5-small",
+        model="cointegrated/rut5-base-multitask",
+        tokenizer="cointegrated/rut5-base-multitask",
         max_length=32
     )
 
