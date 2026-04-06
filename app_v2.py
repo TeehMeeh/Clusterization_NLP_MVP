@@ -287,7 +287,7 @@ if df is not None and not df.empty:
             selected_supervisor = st.multiselect(
                 "Фильтр по преподавателю",
                 options=supervisors,
-                default=st.session_state.selected_supervisors,
+                #default=st.session_state.selected_supervisors,
                 key="selected_supervisors"
             )
 
@@ -298,7 +298,7 @@ if df is not None and not df.empty:
             selected_years = st.multiselect(
                 "Фильтр по году",
                 options=years,
-                default=st.session_state.selected_years,
+                #default=st.session_state.selected_years,
                 key="selected_years"
             )
 
