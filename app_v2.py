@@ -8,7 +8,7 @@ from sklearn.preprocessing import normalize
 from sklearn.metrics import silhouette_score
 
 import umap
-import hdbscan
+from sklearn.cluster import HDBSCAN
 import plotly.express as px
 from scipy.spatial import ConvexHull
 
