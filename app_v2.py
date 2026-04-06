@@ -197,7 +197,7 @@ def find_similar_topics_streamlit(new_text, df, embeddings, top_n=20):
         ascending=False
     )
 
-    sorted_df = sorted_df[sorted_df['Сходство (%)'] >= 85]
+    sorted_df = sorted_df[sorted_df['Сходство (%)'] >= 75]
 
     cols = ['thesis_topic']
     if 'year' in df.columns:
