@@ -485,6 +485,11 @@ if df is not None and not df.empty:
 
             color = color_map.get(str(cluster), "gray")
 
+            cluster_label = st.session_state.get("cluster_names", {}).get(
+                    cluster,
+                    f"Кластер {cluster}"
+                )
+
             fig.add_scatter(
                 x=X_cluster[:, 0],
                 y=X_cluster[:, 1],
@@ -494,11 +499,6 @@ if df is not None and not df.empty:
                     size=9,
                     line=dict(width=0.5, color='black')
                 ),
-                cluster_label = st.session_state.get("cluster_names", {}).get(
-                    cluster,
-                    f"Кластер {cluster}"
-                )
-
                 name=cluster_label,
 
                 # добавляем group
