@@ -44,7 +44,7 @@ model = load_model()
 @st.cache_resource
 def load_ruT5():
     return pipeline(
-        "text2text-generation",
+        "text-generation",
         model="cointegrated/rut5-base-multitask",
         tokenizer="cointegrated/rut5-base-multitask",
         max_length=32
