@@ -41,14 +41,13 @@ def load_model():
 
 model = load_model()
 
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
 @st.cache_resource
 def load_ruT5():
-    return pipeline(
-        "text-generation",
-        model="cointegrated/rut5-base-multitask",
-        tokenizer="cointegrated/rut5-base-multitask",
-        max_length=32
-    )
+    tokenizer = AutoTokenizer.from_pretrained("cointegrated/rut5-base-multitask")
+    model = AutoModelForSeq2SeqLM.from_pretrained("cointegrated/rut5-base-multitask")
+    return tokenizer, model
 
 # -----------------------
 # Функции
@@ -219,24 +218,18 @@ def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
 
     return cluster_keywords
 
-def generate_cluster_label_ruT5(keywords, generator):
-    prompt = (
-        "суммаризация: "
-        + ", ".join(keywords)
-    )
+def generate_cluster_label_ruT5(keywords, tokenizer, model):
+    prompt = "суммаризация: " + ", ".join(keywords)
 
-    result = generator(
-        prompt,
+    inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
+
+    outputs = model.generate(
+        **inputs,
         max_new_tokens=10,
-        do_sample=False,
         repetition_penalty=2.0
     )
 
-    text = result[0]["generated_text"].strip()
-
-    # fallback если вдруг фигня
-    if len(text) < 3:
-        return " ".join(keywords[:3])
+    text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     return text
 
