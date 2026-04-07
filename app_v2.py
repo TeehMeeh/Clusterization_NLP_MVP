@@ -235,14 +235,18 @@ def generate_cluster_label_ruT5(keywords, tokenizer, model):
 
 #@st.cache_data
 def generate_all_cluster_names(df, labels):
-    generator = load_ruT5()
+    tokenizer, model = load_ruT5()  # ← ВАЖНО
 
     cluster_keywords = get_top_words_per_cluster(df, labels)
 
     cluster_names = {}
 
     for cluster, words in cluster_keywords.items():
-        cluster_names[cluster] = generate_cluster_label_ruT5(words, generator)
+        cluster_names[cluster] = generate_cluster_label_ruT5(
+            words,
+            tokenizer,
+            model
+        )
 
     return cluster_names
 
