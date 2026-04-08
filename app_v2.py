@@ -351,7 +351,7 @@ def generate_cluster_label_ruT5(keywords, tokenizer, model):
         return "Разное"
 
     prompt = (
-        "Дай короткое название научной области по списку слов: "
+        "суммаризация: "
         + ", ".join(keywords)
     )
 
