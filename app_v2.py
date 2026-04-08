@@ -116,6 +116,18 @@ def reduce_dim(X):
     #return umap_model.fit_transform(X)
 
 
+def reduce_to_2d(X):
+    umap_model = umap.UMAP(
+        n_neighbors=10,
+        n_components=2,
+        min_dist=0.2,
+        spread=1.8,
+        metric='cosine',
+        random_state=42
+    )
+    return umap_model.fit_transform(X)
+
+
 def spread_clusters(X_2d, labels, strength=2.5):
     X_new = X_2d.copy()
 
@@ -375,6 +387,7 @@ if df is not None and not df.empty:
 
         with st.spinner("Кластеризация..."):
             labels = cluster_data(X_2d)
+            X_2d = reduce_to_2d(X_cluster)       # 🔥 настоящий 2D
             X_2d = spread_clusters(X_2d, labels, strength=3.0)
 
         with st.spinner("Генерируем названия кластеров..."):
