@@ -101,6 +101,7 @@ def reduce_dim(X):
         n_neighbors=10,
         n_components=8,
         min_dist=0.0,
+        spread=1.5,
         metric='cosine',
         random_state=42
     )
