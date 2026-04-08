@@ -185,7 +185,7 @@ def cluster_data(X):
         min_cluster_size=7,
         min_samples=4,
         metric='cosine',
-        cluster_selection_epsilon=0.05
+        cluster_selection_epsilon=0.1
     )
     return clusterer.fit_predict(X)
 
