@@ -99,7 +99,7 @@ def reduce_dim(X):
 
     umap_model = umap.UMAP(
         n_neighbors=15,
-        n_components=8,
+        n_components=5,
         min_dist=0.00,
         metric='cosine',
         random_state=42
