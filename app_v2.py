@@ -313,7 +313,7 @@ def generate_cluster_label_ruT5(keywords, tokenizer, model):
 
     outputs = model.generate(
         **inputs,
-        max_new_tokens=10,
+        max_new_tokens=20,
         repetition_penalty=2.0
     )
 
