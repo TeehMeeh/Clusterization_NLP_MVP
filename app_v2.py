@@ -304,6 +304,11 @@ def generate_all_cluster_names(df, labels):
 
     return cluster_names
 
+def map_cluster_name(cluster, cluster_names):
+    if cluster == -1:
+        return "Не кластеризованы"
+    return cluster_names.get(cluster, f"Кластер {cluster}")
+
 
 def fuzzy_similarity(a, b):
     return max(
@@ -398,7 +403,10 @@ if df is not None and not df.empty:
         st.session_state.X_2d = X_2d
         st.session_state.labels = labels
         st.session_state.clustered_df = df.copy()
-        st.session_state.clustered_df["cluster"] = labels
+        st.session_state.clustered_df["cluster_name"] = (
+            st.session_state.clustered_df["cluster"]
+            .apply(lambda x: map_cluster_name(x, cluster_names))
+        )
         st.session_state.cluster_names = cluster_names
 
     # -----------------------
@@ -608,7 +616,7 @@ if df is not None and not df.empty:
 
         # --- ТАБЛИЦА ---
         st.data_editor(
-            df_display[["thesis_topic", "cluster", "supervisor_code"]],
+            df_display[["thesis_topic", "cluster_name", "supervisor_code"]],
             use_container_width=True,
             disabled=True,
             column_config={
@@ -616,7 +624,7 @@ if df is not None and not df.empty:
                     "Тема ВКР",
                     width="large"
                 ),
-                "cluster": st.column_config.NumberColumn(
+                "cluster_name": st.column_config.NumberColumn(
                     "Кластер",
                     width=50 
                 ),
