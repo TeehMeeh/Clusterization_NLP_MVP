@@ -152,6 +152,9 @@ def generate_cluster_colors(labels):
 
     return color_map
 
+def to_rgba(color, alpha=0.1):
+    r, g, b = map(int, color.replace("rgb(", "").replace(")", "").split(","))
+    return f"rgba({r},{g},{b},{alpha})"
 
 def color_cluster(val):
     if val in color_map:
@@ -223,7 +226,7 @@ def add_cluster_boundaries(fig, X, labels, color_map):
                 mode='lines',
                 line=dict(width=2, color=color),
                 fill='toself',
-                fillcolor=color.replace("rgb", "rgba").replace(")", ",0.08)"),
+                fillcolor=to_rgba(color, 0.08),
                 opacity=0.3,
                 showlegend=False,
                 hoverinfo="skip",
@@ -237,7 +240,7 @@ def add_cluster_boundaries(fig, X, labels, color_map):
                 mode='lines',
                 line=dict(width=4, color=color),
                 fill='toself',
-                fillcolor=color.replace("rgb", "rgba").replace(")", ",0.25)"),
+                fillcolor=to_rgba(color, 0.25),
                 opacity=0, 
                 showlegend=False,
                 hoverinfo="skip",
@@ -658,7 +661,7 @@ if df is not None and not df.empty:
         )
         # --- ТАБЛИЦА ---
         st.data_editor(
-            styled_df[["thesis_topic", "cluster_name", "supervisor_code"]],
+            df_display[["thesis_topic", "cluster_name", "supervisor_code"]],
             use_container_width=True,
             disabled=True,
             column_config={
