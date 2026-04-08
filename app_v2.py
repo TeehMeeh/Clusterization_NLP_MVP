@@ -403,6 +403,7 @@ if df is not None and not df.empty:
         st.session_state.X_2d = X_2d
         st.session_state.labels = labels
         st.session_state.clustered_df = df.copy()
+        st.session_state.clustered_df["cluster"] = labels
         st.session_state.clustered_df["cluster_name"] = (
             st.session_state.clustered_df["cluster"]
             .apply(lambda x: map_cluster_name(x, cluster_names))
@@ -624,7 +625,7 @@ if df is not None and not df.empty:
                     "Тема ВКР",
                     width="large"
                 ),
-                "cluster_name": st.column_config.NumberColumn(
+                "cluster_name": st.column_config.TextColumn(
                     "Кластер",
                     width=50 
                 ),
