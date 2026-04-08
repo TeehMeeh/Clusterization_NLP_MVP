@@ -1,14 +1,14 @@
 # requirements.txt
 streamlit==1.39.0
-pandas==2.1.4
-openpyxl>=3.1.0
-numpy==1.26.4
+pandas==2.2.2
+openpyxl>=3.1.5
+numpy==2.0.2
 scikit-learn==1.6.1
 umap-learn==0.5.11
-plotly==5.18.0
-rapidfuzz==3.6.2
+plotly==5.24.1
+rapidfuzz==3.14.5
 sentence-transformers==5.3.0
 transformers>=4.35.0
-torch>=2.1.0
-huggingface_hub>=0.17.3
+torch>=2.10.0
+huggingface_hub>=1.8.0
 sentencepiece
