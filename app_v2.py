@@ -94,7 +94,7 @@ def get_embeddings(df, mode="Только темы", alpha=0.8):
 
 
 def reduce_dim(X):
-    pca = PCA(n_components=50, random_state=42)
+    pca = PCA(n_components=80, random_state=42)
     X_pca = pca.fit_transform(X)
 
     umap_model = umap.UMAP(
