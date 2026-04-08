@@ -115,6 +115,40 @@ def reduce_dim(X):
     return umap_model.fit_transform(X_pca)
     #return umap_model.fit_transform(X)
 
+
+def spread_clusters(X_2d, labels, strength=2.5):
+    X_new = X_2d.copy()
+
+    unique_labels = [l for l in set(labels) if l != -1]
+
+    # центры кластеров
+    centroids = {}
+    for label in unique_labels:
+        centroids[label] = X_2d[labels == label].mean(axis=0)
+
+    # считаем сдвиги
+    shifts = {label: np.zeros(2) for label in unique_labels}
+
+    for i in unique_labels:
+        for j in unique_labels:
+            if i == j:
+                continue
+
+            vec = centroids[i] - centroids[j]
+            dist = np.linalg.norm(vec) + 1e-6
+
+            # чем ближе — тем сильнее отталкивание
+            force = strength / dist
+
+            shifts[i] += (vec / dist) * force
+
+    # применяем сдвиг
+    for label in unique_labels:
+        mask = labels == label
+        X_new[mask] += shifts[label]
+
+    return X_new
+
 def add_cluster_boundaries(fig, X, labels, color_map):
     unique_labels = set(labels)
     X_2d = X[:, :2]
@@ -341,6 +375,7 @@ if df is not None and not df.empty:
 
         with st.spinner("Кластеризация..."):
             labels = cluster_data(X_2d)
+            X_2d = spread_clusters(X_2d, labels, strength=3.0)
 
         with st.spinner("Генерируем названия кластеров..."):
             cluster_names = generate_all_cluster_names(df, labels)
