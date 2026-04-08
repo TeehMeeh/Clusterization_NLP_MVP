@@ -77,7 +77,6 @@ def truncate(text, max_words=50):
     return " ".join(str(text).split()[:max_words])
 
 import re
-
 def clean_text(text):
     text = str(text).lower()
     # 1. заменить пунктуацию на пробел
@@ -89,6 +88,30 @@ def clean_text(text):
     # 4. обрезать
     
     return text.strip()
+
+import re
+def clean_keywords(words):
+    cleaned = []
+
+    for w in words:
+        w = w.lower().strip()
+
+        # убрать мусор
+        w = re.sub(r'[^а-яa-z0-9]', '', w)
+
+        # фильтры
+        if len(w) < 4:
+            continue
+
+        if w in RUSSIAN_STOPWORDS:
+            continue
+
+        cleaned.append(w)
+
+    # убрать дубли
+    cleaned = list(dict.fromkeys(cleaned))
+
+    return cleaned[:5]
 
 def get_embeddings(df, mode="Только темы", alpha=0.8):
     titles = df['thesis_topic'].fillna("").apply(clean_text).tolist()
@@ -301,23 +324,54 @@ def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
         words = np.array(vectorizer.get_feature_names_out())
 
         top_words = words[np.argsort(scores)[::-1][:top_n]]
+        top_words = clean_keywords(top_words)
+        top_words = lemmatize_words(top_words)
 
         cluster_keywords[cluster] = list(top_words)
 
     return cluster_keywords
 
+import pymorphy2
+morph = pymorphy2.MorphAnalyzer()
+
+def lemmatize_words(words):
+    lemmas = []
+    for w in words:
+        try:
+            lemma = morph.parse(w)[0].normal_form
+            lemmas.append(lemma)
+        except:
+            continue
+    return list(dict.fromkeys(lemmas))
+
 def generate_cluster_label_ruT5(keywords, tokenizer, model):
-    prompt = "суммаризация: " + ", ".join(keywords)
+
+    if not keywords:
+        return "Разное"
+
+    prompt = (
+        "Сформулируй короткое название темы научных работ "
+        "на основе ключевых слов.\n\n"
+        "Ключевые слова: " + ", ".join(keywords) + "\n\n"
+        "Ответ:"
+    )
 
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
 
     outputs = model.generate(
         **inputs,
-        max_new_tokens=20,
-        repetition_penalty=2.0
+        max_new_tokens=12,
+        repetition_penalty=2.5,
+        no_repeat_ngram_size=3,
+        num_beams=5,
+        early_stopping=True
     )
 
     text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # очистка результата
+    text = text.strip()
+    text = re.sub(r'[^а-яА-Яa-zA-Z0-9\s]', '', text)
 
     return text
 
