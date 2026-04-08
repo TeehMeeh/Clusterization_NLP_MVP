@@ -43,11 +43,6 @@ model = load_model()
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-@st.cache_resource
-def load_ruT5():
-    tokenizer = AutoTokenizer.from_pretrained("cointegrated/rut5-base-multitask")
-    model = AutoModelForSeq2SeqLM.from_pretrained("cointegrated/rut5-base-multitask")
-    return tokenizer, model
 
 # -----------------------
 # Функции
@@ -316,7 +311,8 @@ def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
         vectorizer = TfidfVectorizer(
             max_features=1000,
             stop_words=RUSSIAN_STOPWORDS,
-            token_pattern=r'(?u)\b[а-яa-z]{3,}\b'
+            token_pattern=r'(?u)\b[а-яa-z]{3,}\b',
+            ngram_range=(1, 2)
         )
 
         X = vectorizer.fit_transform(texts)
@@ -345,52 +341,35 @@ def lemmatize_words(words):
             continue
     return list(dict.fromkeys(lemmas))
 
-def generate_cluster_label_ruT5(keywords, tokenizer, model):
+def generate_cluster_label_stat(keywords):
+    if not keywords:
+        return "Разное"
+
+    # убираем дубли и мусор
+    keywords = [w for w in keywords if len(w) >= 4]
 
     if not keywords:
         return "Разное"
 
-    prompt = (
-        "суммаризация: "
-        + ", ".join(keywords)
-    )
+    # берем 2–3 самых сильных слова
+    main = keywords[:3]
 
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
+    # красиво склеиваем
+    label = " / ".join(main)
 
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=12,
-        repetition_penalty=2.5,
-        no_repeat_ngram_size=3,
-        num_beams=5,
-        early_stopping=True
-    )
+    # капитализация
+    label = label.capitalize()
 
-    text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    # очистка результата
-    text = text.strip()
-    text = re.sub(r'[^а-яА-Яa-zA-Z0-9\s]', '', text)
-    text = text.lower()
-    text = re.sub(r'ключевые слова', '', text)
-    text = text.strip()
-
-    return text
+    return label
 
 #@st.cache_data
 def generate_all_cluster_names(df, labels):
-    tokenizer, model = load_ruT5()  # ← ВАЖНО
-
     cluster_keywords = get_top_words_per_cluster(df, labels)
 
     cluster_names = {}
 
     for cluster, words in cluster_keywords.items():
-        cluster_names[cluster] = generate_cluster_label_ruT5(
-            words,
-            tokenizer,
-            model
-        )
+        cluster_names[cluster] = generate_cluster_label_stat(words)
 
     return cluster_names
 
