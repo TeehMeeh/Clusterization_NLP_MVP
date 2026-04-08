@@ -383,11 +383,12 @@ if df is not None and not df.empty:
 
     if st.button("Запустить кластеризацию"):
         with st.spinner("Снижаем размерность..."):
-            X_2d = reduce_dim(embeddings)
+            X_cluster = reduce_dim(embeddings)
 
         with st.spinner("Кластеризация..."):
-            labels = cluster_data(X_2d)
-            X_2d = reduce_to_2d(X_cluster)       # 🔥 настоящий 2D
+            labels = cluster_data(X_cluster)
+
+            X_2d = reduce_to_2d(X_cluster)
             X_2d = spread_clusters(X_2d, labels, strength=3.0)
 
         with st.spinner("Генерируем названия кластеров..."):
