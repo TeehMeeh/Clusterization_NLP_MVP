@@ -99,14 +99,14 @@ def reduce_dim(X):
 
     umap_model = umap.UMAP(
         n_neighbors=15,
-        n_components=5,
+        n_components=8,
         min_dist=0.00,
         metric='cosine',
         random_state=42
     )
 
-    #return umap_model.fit_transform(X_pca)
-    return umap_model.fit_transform(X)
+    return umap_model.fit_transform(X_pca)
+    #return umap_model.fit_transform(X)
 
 def add_cluster_boundaries(fig, X, labels, color_map):
     unique_labels = set(labels)
