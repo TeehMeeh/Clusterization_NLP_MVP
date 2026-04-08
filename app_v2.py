@@ -404,7 +404,7 @@ if df is not None and not df.empty:
             cluster_options = ["Все"] + [
                 "Не кластеризованы" if c == -1 else str(c)
                 for c in clusters
-            ]]
+            ]
 
         selected_cluster = st.selectbox("Фильтр по кластеру", cluster_options)
 
