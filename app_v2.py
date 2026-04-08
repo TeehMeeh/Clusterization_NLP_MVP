@@ -63,7 +63,7 @@ RUSSIAN_STOPWORDS = [
 
     # --- часто встречается в твоих темах ---
     "основе","примере", "использование","использования",
-    "применение","применения"
+    "применение","применения",
 
     # --- мусор из формулировок ---
     "различных","различные",
@@ -79,10 +79,16 @@ def truncate(text, max_words=50):
 import re
 
 def clean_text(text):
-    text = str(text)
-    text = re.sub(r'\s+', ' ', text)  # схлопываем пробелы
-    text = text.strip()
-    return text
+    text = str(text).lower()
+    # 1. заменить пунктуацию на пробел
+    text = re.sub(r"[^\w\s]", " ", text)
+    # 2. убрать подчёркивания (они считаются словом)
+    text = re.sub(r"_", " ", text)
+    # 3. схлопнуть пробелы
+    text = re.sub(r"\s+", " ", text)
+    # 4. обрезать
+    
+    return text.strip()
 
 def get_embeddings(df, mode="Только темы", alpha=0.8):
     titles = df['thesis_topic'].fillna("").apply(clean_text).tolist()
@@ -199,7 +205,7 @@ def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
         if cluster == -1:
             continue
 
-        texts = df[df['cluster'] == cluster][text_col].dropna().tolist()
+        texts = df[df['cluster'] == cluster][text_col].dropna().apply(clean_text).tolist()
 
         if len(texts) < 3:
             continue
