@@ -100,7 +100,7 @@ def reduce_dim(X):
     umap_model = umap.UMAP(
         n_neighbors=10,
         n_components=8,
-        min_dist=0.01,
+        min_dist=0.1,
         metric='cosine',
         random_state=42
     )
@@ -185,7 +185,7 @@ def cluster_data(X):
         min_cluster_size=7,
         min_samples=4,
         metric='cosine',
-        cluster_selection_epsilon=0.001
+        cluster_selection_epsilon=0.05
     )
     return clusterer.fit_predict(X)
 
