@@ -184,7 +184,8 @@ def cluster_data(X):
     clusterer = HDBSCAN(
         min_cluster_size=7,
         min_samples=4,
-        metric='cosine'
+        metric='cosine',
+        cluster_selection_epsilon=0.1
     )
     return clusterer.fit_predict(X)
 
