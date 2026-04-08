@@ -91,10 +91,9 @@ def clean_keywords(words):
     for w in words:
         w = w.lower().strip()
 
-        # убрать мусор
-        w = re.sub(r'[^а-яa-z0-9]', '', w)
+        # ❗ сохраняем пробелы (для биграмм)
+        w = re.sub(r'[^а-яa-z0-9\s]', '', w)
 
-        # фильтры
         if len(w) < 4:
             continue
 
@@ -103,10 +102,8 @@ def clean_keywords(words):
 
         cleaned.append(w)
 
-    # убрать дубли
-    cleaned = list(dict.fromkeys(cleaned))
+    return list(dict.fromkeys(cleaned))[:5]
 
-    return cleaned[:5]
 
 def get_embeddings(df, mode="Только темы", alpha=0.8):
     titles = df['thesis_topic'].fillna("").apply(clean_text).tolist()
@@ -312,7 +309,8 @@ def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
             max_features=1000,
             stop_words=RUSSIAN_STOPWORDS,
             token_pattern=r'(?u)\b[а-яa-z]{3,}\b',
-            ngram_range=(1, 2)
+            ngram_range=(1, 2),
+            min_df=2
         )
 
         X = vectorizer.fit_transform(texts)
@@ -322,7 +320,48 @@ def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
 
         top_words = words[np.argsort(scores)[::-1][:top_n]]
         top_words = clean_keywords(top_words)
-        top_words = lemmatize_words(top_words)
+
+        cluster_keywords[cluster] = list(top_words)
+
+    return cluster_keywords
+
+def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
+    df = df.copy()
+    df['cluster'] = labels
+
+    texts_per_cluster = {}
+    for cluster in sorted(df['cluster'].unique()):
+        if cluster == -1:
+            continue
+
+        texts = df[df['cluster'] == cluster][text_col] \
+            .dropna().apply(clean_text).tolist()
+
+        if len(texts) < 3:
+            continue
+
+        texts_per_cluster[cluster] = " ".join(texts)
+
+    # --- общий корпус
+    all_docs = list(texts_per_cluster.values())
+
+    vectorizer = TfidfVectorizer(
+        max_features=2000,
+        stop_words=RUSSIAN_STOPWORDS,
+        ngram_range=(1, 2),
+        token_pattern=r'(?u)\b[а-яa-z]{3,}\b'
+    )
+
+    X = vectorizer.fit_transform(all_docs)
+    words = np.array(vectorizer.get_feature_names_out())
+
+    cluster_keywords = {}
+
+    for idx, cluster in enumerate(texts_per_cluster.keys()):
+        scores = X[idx].toarray().flatten()
+
+        top_words = words[np.argsort(scores)[::-1][:top_n]]
+        top_words = clean_keywords(top_words)
 
         cluster_keywords[cluster] = list(top_words)
 
@@ -345,22 +384,21 @@ def generate_cluster_label_stat(keywords):
     if not keywords:
         return "Разное"
 
-    # убираем дубли и мусор
-    keywords = [w for w in keywords if len(w) >= 4]
+    # убираем повторяющиеся корни (очень полезно)
+    unique = []
+    for w in keywords:
+        if not any(w in u or u in w for u in unique):
+            unique.append(w)
 
-    if not keywords:
-        return "Разное"
+    keywords = unique[:3]
 
-    # берем 2–3 самых сильных слова
-    main = keywords[:3]
+    if len(keywords) == 1:
+        return keywords[0].capitalize()
 
-    # красиво склеиваем
-    label = " / ".join(main)
+    if len(keywords) == 2:
+        return f"{keywords[0]} и {keywords[1]}".capitalize()
 
-    # капитализация
-    label = label.capitalize()
-
-    return label
+    return f"{keywords[0]} / {keywords[1]} / {keywords[2]}".capitalize()
 
 #@st.cache_data
 def generate_all_cluster_names(df, labels):
