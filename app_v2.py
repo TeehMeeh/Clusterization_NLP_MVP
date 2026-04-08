@@ -315,7 +315,8 @@ def get_top_words_per_cluster(df, labels, text_col='thesis_topic', top_n=5):
 
         vectorizer = TfidfVectorizer(
             max_features=1000,
-            stop_words=RUSSIAN_STOPWORDS
+            stop_words=RUSSIAN_STOPWORDS,
+            token_pattern=r'(?u)\b[а-яa-z]{3,}\b'
         )
 
         X = vectorizer.fit_transform(texts)
@@ -350,10 +351,8 @@ def generate_cluster_label_ruT5(keywords, tokenizer, model):
         return "Разное"
 
     prompt = (
-        "Сформулируй короткое название темы научных работ "
-        "на основе ключевых слов.\n\n"
-        "Ключевые слова: " + ", ".join(keywords) + "\n\n"
-        "Ответ:"
+        "Дай короткое название научной области по списку слов: "
+        + ", ".join(keywords)
     )
 
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True)
@@ -372,6 +371,9 @@ def generate_cluster_label_ruT5(keywords, tokenizer, model):
     # очистка результата
     text = text.strip()
     text = re.sub(r'[^а-яА-Яa-zA-Z0-9\s]', '', text)
+    text = text.lower()
+    text = re.sub(r'ключевые слова', '', text)
+    text = text.strip()
 
     return text
 
