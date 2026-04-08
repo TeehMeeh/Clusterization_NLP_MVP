@@ -127,27 +127,37 @@ def reduce_to_2d(X):
     )
     return umap_model.fit_transform(X)
 
-import plotly.express as px
 
+import colorsys
+def generate_unique_colors(n):
+    colors = []
+    for i in range(n):
+        hue = i / n
+        r, g, b = colorsys.hsv_to_rgb(hue, 0.65, 0.9)
+        colors.append(f'rgb({int(r*255)}, {int(g*255)}, {int(b*255)})')
+    return colors
+
+
+import plotly.express as px
 def generate_cluster_colors(labels):
-    """
-    Создаём уникальный цвет для каждого кластера.
-    """
     unique_labels = sorted(set(labels))
     num_clusters = len(unique_labels)
 
-    # Берём базовую палитру и дублируем при необходимости
-    base_colors = px.colors.qualitative.Plotly
-    colors = (base_colors * ((num_clusters // len(base_colors)) + 1))[:num_clusters]
+    colors = generate_unique_colors(num_clusters)
 
-    # Сопоставляем cluster -> color
     color_map = {str(label): color for label, color in zip(unique_labels, colors)}
 
-    # Цвет для -1 (не кластеризованных) задаём серый
     if -1 in unique_labels:
         color_map["-1"] = "lightgray"
 
     return color_map
+
+
+def color_cluster(val):
+    if val in color_map:
+        return f'color: {color_map[val]}'
+    return ''
+
 
 def spread_clusters(X_2d, labels, strength=2.5):
     X_new = X_2d.copy()
@@ -638,9 +648,17 @@ if df is not None and not df.empty:
         else:
             st.warning("Недостаточно кластеров для метрики")
 
+
+        styled_df = df_display[["thesis_topic", "cluster_name", "supervisor_code"]].copy()
+
+        styled_df = styled_df.style.applymap(
+            lambda x: color_map.get(str(df_display.loc[x.name, "cluster"]), "")
+            if x.name < len(df_display) else "",
+            subset=["cluster_name"]
+        )
         # --- ТАБЛИЦА ---
         st.data_editor(
-            df_display[["thesis_topic", "cluster_name", "supervisor_code"]],
+            styled_df[["thesis_topic", "cluster_name", "supervisor_code"]],
             use_container_width=True,
             disabled=True,
             column_config={
