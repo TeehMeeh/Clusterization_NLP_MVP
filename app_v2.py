@@ -94,11 +94,11 @@ def get_embeddings(df, mode="Только темы", alpha=0.8):
 
 
 def reduce_dim(X):
-    pca = PCA(n_components=80, random_state=42)
+    pca = PCA(n_components=50, random_state=42)
     X_pca = pca.fit_transform(X)
 
     umap_model = umap.UMAP(
-        n_neighbors=15,
+        n_neighbors=10,
         n_components=8,
         min_dist=0.1,
         metric='cosine',
@@ -596,7 +596,7 @@ if df is not None and not df.empty:
                     top_n
                 )
 
-            st.write("### 🔥 Похожие темы")
+            st.write("### Похожие темы")
             st.dataframe(similar_df, use_container_width=True)
 
         else:
