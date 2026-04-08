@@ -127,6 +127,27 @@ def reduce_to_2d(X):
     )
     return umap_model.fit_transform(X)
 
+import plotly.express as px
+
+def generate_cluster_colors(labels):
+    """
+    Создаём уникальный цвет для каждого кластера.
+    """
+    unique_labels = sorted(set(labels))
+    num_clusters = len(unique_labels)
+
+    # Берём базовую палитру и дублируем при необходимости
+    base_colors = px.colors.qualitative.Plotly
+    colors = (base_colors * ((num_clusters // len(base_colors)) + 1))[:num_clusters]
+
+    # Сопоставляем cluster -> color
+    color_map = {str(label): color for label, color in zip(unique_labels, colors)}
+
+    # Цвет для -1 (не кластеризованных) задаём серый
+    if -1 in unique_labels:
+        color_map["-1"] = "lightgray"
+
+    return color_map
 
 def spread_clusters(X_2d, labels, strength=2.5):
     X_new = X_2d.copy()
@@ -512,12 +533,14 @@ if df is not None and not df.empty:
         indices = df_display.index
         X_display = X_2d[indices]
         labels_display = labels[indices]
+        color_map = generate_cluster_colors(labels_display)
 
         # --- 1. Цвета кластеров (правильные!) ---
         fig_full = px.scatter(
             x=X_2d[:, 0],
             y=X_2d[:, 1],
-            color=labels.astype(str) 
+            color=labels.astype(str),
+            color_discrete_map=color_map
         )
 
         color_map = get_cluster_colors(fig_full)
