@@ -105,7 +105,8 @@ def reduce_dim(X):
         random_state=42
     )
 
-    return umap_model.fit_transform(X_pca)
+    #return umap_model.fit_transform(X_pca)
+    return umap_model.fit_transform(X)
 
 def add_cluster_boundaries(fig, X, labels, color_map):
     unique_labels = set(labels)
