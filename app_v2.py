@@ -226,7 +226,7 @@ def add_cluster_boundaries(fig, X, labels, color_map):
                 mode='lines',
                 line=dict(width=2, color=color),
                 fill='toself',
-                fillcolor=to_rgba(color, 0.08),
+                fillcolor=to_rgba(color, 0.2),
                 opacity=0.3,
                 showlegend=False,
                 hoverinfo="skip",
