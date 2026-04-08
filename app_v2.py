@@ -120,8 +120,8 @@ def reduce_to_2d(X):
     umap_model = umap.UMAP(
         n_neighbors=10,
         n_components=2,
-        min_dist=0.2,
-        spread=1.8,
+        min_dist=0.6,
+        spread=3,
         metric='cosine',
         random_state=42
     )
