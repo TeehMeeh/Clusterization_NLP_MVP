@@ -98,9 +98,9 @@ def reduce_dim(X):
     X_pca = pca.fit_transform(X)
 
     umap_model = umap.UMAP(
-        n_neighbors=10,
+        n_neighbors=15,
         n_components=8,
-        min_dist=0.01,
+        min_dist=0.00,
         metric='cosine',
         random_state=42
     )
