@@ -388,7 +388,7 @@ if df is not None and not df.empty:
         with st.spinner("Кластеризация..."):
             labels = cluster_data(X_cluster)
 
-            X_2d = reduce_to_2d(X_cluster)
+            X_2d = reduce_to_2d(embeddings)
             X_2d = spread_clusters(X_2d, labels, strength=3.0)
 
         with st.spinner("Генерируем названия кластеров..."):
