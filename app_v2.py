@@ -401,7 +401,10 @@ if df is not None and not df.empty:
             )
 
             clusters = sorted(df_clustered["cluster"].unique())
-            cluster_options = ["Все"] + [str(c) for c in clusters if c != -1]
+            cluster_options = ["Все"] + [
+                "Не кластеризованы" if c == -1 else str(c)
+                for c in clusters
+            ]]
 
         selected_cluster = st.selectbox("Фильтр по кластеру", cluster_options)
 
@@ -420,10 +423,10 @@ if df is not None and not df.empty:
         df_display = df_clustered.copy()
 
         # фильтр по кластеру
-        if selected_cluster != "Все":
-            df_display = df_display[
-                df_display["cluster"] == int(selected_cluster)
-            ]
+        if selected_cluster == "Не кластеризованы":
+            df_display = df_display[df_display["cluster"] == -1]
+        elif selected_cluster != "Все":
+            df_display = df_display[df_display["cluster"] == int(selected_cluster)]
 
         # фильтр по преподавателю
         if selected_supervisor:
@@ -481,10 +484,13 @@ if df is not None and not df.empty:
 
             color = color_map.get(str(cluster), "gray")
 
-            cluster_label = st.session_state.get("cluster_names", {}).get(
-                    cluster,
-                    f"Кластер {cluster}"
+            cluster_label = (
+                "Не кластеризованы"
+                if cluster == -1
+                else st.session_state.get("cluster_names", {}).get(
+                    cluster, f"Кластер {cluster}"
                 )
+            )
 
             fig.add_scatter(
                 x=X_cluster[:, 0],
